@@ -85,6 +85,10 @@ Se crea un archivo `.env`, donde se almacenan las variables de entorno para guar
 
     `docker compose down`
 
+![Salida esperada de la verificación de la base de datos](./images/salidaBackend.png)
+<center><small>Salida esperada de la verificación de la base de datos.</small></center>
+
+
 ---
 
 ## Backend
@@ -101,12 +105,12 @@ Está estructurado bajo una arquitectura modular que separa la *configuración, 
 
 | Metodo | Ruta                | Acceso                       |
 |--------|---------------------|------------------------------|
-| POST   | /api/register       | publico (crea con rol 'user')    |
-| POST   | /api/login          | publico (devuelve JWT)       |
-| GET    | /api/me             | autenticado                  |
-| GET    | /api/users          | solo admin                   |
-| PUT    | /api/users/{id}     | admin (incl. rol) o el propio|
-| DELETE | /api/users/{id}     | solo admin                   |
+| POST   | /api/register       | publico (crea con rol 'user') |
+| POST   | /api/login          | publico (devuelve JWT) |
+| GET    | /api/me             | autenticado                    |
+| GET    | /api/users          | solo admin |
+| PUT    | /api/users/{id}     | admin (incl. rol) o el propio usuario |
+| DELETE | /api/users/{id}     | solo admin o el propio usuario |
 
 ### Pruebas de funcionamiento y verificación
 
@@ -124,6 +128,7 @@ Está estructurado bajo una arquitectura modular que separa la *configuración, 
 
 ![Salida esperada de la verificación del backend](./images/salidaBackend.png)
 <center><small>Salida esperada de la verificación del backend.</small></center>
+
 
 ---
 
