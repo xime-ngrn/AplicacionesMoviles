@@ -89,6 +89,41 @@ Se crea un archivo `.env`, donde se almacenan las variables de entorno para guar
 
 ## Backend
 
+Para la creación del backend se utilizó **Python con Flask**, framework de desarrollo web diseñado para crear aplicaciones web, APIs RESTFUL y microservicios de forma rápida, ligera y flexible.
+
+Está estructurado bajo una arquitectura modular que separa la *configuración, el mapeo de datos y la lógica de negocio* en componentes independientes:
+
+* `config.py`: administra la conexión hacia la base de datos (a partir de su contenedor) utilizando la libería **SQLAlchemy** como ORM (Object-Relational Mapping). Carga de forma segura las credenciales y claves de cifrado desde las variables de entorno.
+* `models.py`: define la estructura, tablas y tipos de datos en la base de datos mediante clases de Python, mapeando las entidades.
+* `app.py`: se define la API RESTful para la gestión de usuarios y autenticación. Además, crea la tabla *users* de la base de datos, e ingresa automáticamente un usuario con rol administrador si la tabla está vacía, implementando la función `seed_admin(app)`.
+
+### Endpoints de la API
+
+| Metodo | Ruta                | Acceso                       |
+|--------|---------------------|------------------------------|
+| POST   | /api/register       | publico (crea con rol 'user')    |
+| POST   | /api/login          | publico (devuelve JWT)       |
+| GET    | /api/me             | autenticado                  |
+| GET    | /api/users          | solo admin                   |
+| PUT    | /api/users/{id}     | admin (incl. rol) o el propio|
+| DELETE | /api/users/{id}     | solo admin                   |
+
+### Pruebas de funcionamiento y verificación
+
+1. Para levantar el backend desde Docker se utiliza el comando:
+
+    `docker compose up --build backend`
+
+2. Para confirmar que el backend creó las tablas en la base de datos se utiliza el comando:
+
+    `docker exec -it login_mysql mysql -u appuser -papppass logindb -e "SHOW TABLES; SELECT id, username, role FROM users;"`
+
+3. Para corroborar el correcto funcionamiento del servidor con Docker, la conexión a la base de datos y la funcionalidad del proceso de inicio de sesión, se utiliza el siguiente comando, que devuelve el *access_token* del usuario conectado:
+
+    `curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d "{\"username\":\"admin\",\"password\":\"admin123\"}"`
+
+![Salida esperada de la verificación del backend](./images/salidaBackend.png)
+<center><small>Salida esperada de la verificación del backend.</small></center>
 
 ---
 
