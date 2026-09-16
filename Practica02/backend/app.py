@@ -62,7 +62,7 @@ def register_routes(app):
         db.session.add(user)
         db.session.commit()
 
-        return jsonify({"message": "Usuario registrado exitosamente.", "user": user.to_dict()}), 201
+        return jsonify({"message": "Usuario registrado exitosamente.", "user": user.to_dict()}), 200
 
     # endpoint para verificar el inicio de sesión de un usuario y generar un token JWT
     @app.post("/api/login")
@@ -91,12 +91,37 @@ def register_routes(app):
             return jsonify({"message": "Usuario no encontrado."}), 404
         return jsonify({"user": user.to_dict()}), 200
 
-    #endpoint para obtener la lista de usuarios (solo accesible por administradores)
+    # endpoint para obtener la lista de usuarios (solo accesible por administradores)
     @app.get("/api/users")
     @admin_required
     def get_users():
         users = User.query.all()
         return jsonify({"users": [user.to_dict() for user in users]}), 200
+
+    # enpoint para crear usuarios eligiendo su rol (únicamente para administradores)
+    @app.post("/api/users")
+    @admin_required
+    def create_user():
+        data = request.get_json() or {}
+        username = data.get("username")
+        email = data.get("email")
+        password = data.get("password")
+        role = data.get("role", "user")
+
+        if not username or not email or not password:
+            return jsonify({"message": "Faltan campos requeridos."}), 400
+        if role not in ("user", "admin"):
+            return jsonify({"message": "Rol invalido."}), 400
+        if User.query.filter_by(username=username).first():
+            return jsonify({"message": "El usuario ingresado ya existe."}), 400
+        if User.query.filter_by(email=email).first():
+            return jsonify({"message": "El correo electronico ingresado ya existe."}), 400
+
+        pw_hash = bcrypt.generate_password_hash(password).decode("utf-8")
+        user = User(username=username, email=email, password_hash=pw_hash, role=role)
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({"message": "Usuario creado exitosamente.", "user": user.to_dict()}), 201
 
     # endpoint para modificar la información de un usuario
     @app.put("/api/users/<int:user_id>")
@@ -114,11 +139,13 @@ def register_routes(app):
 
         data = request.get_json() or {}
         if data.get("username"):
-            if User.query.filter_by(username=data["username"]).first():
+            existente = User.query.filter_by(username=data["username"]).first()
+            if existente and existente.id != user.id:
                 return jsonify({"message": "El nombre de usuario ya está en uso."}), 400
             user.username = data["username"]
         if data.get("email"):
-            if User.query.filter_by(email=data["email"]).first():
+            existente = User.query.filter_by(email=data["email"]).first()
+            if existente and existente.id != user.id:
                 return jsonify({"message": "El correo electrónico ya está en uso."}), 400
             user.email = data["email"]
         if data.get("password"):
