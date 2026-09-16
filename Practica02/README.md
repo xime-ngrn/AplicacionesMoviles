@@ -65,6 +65,8 @@ Para la creación de la base de datos en Docker, se crea el servicio dentro del 
 
 Se crea un archivo `.env`, donde se almacenan las variables de entorno para guardar las credenciales del usuario.
 
+### Pruebas de funcionamiento y verificación
+
 1. Para levantar el servicio y verificar que está funcionando, se utiliza el siguiente comando. Esto deja corriendo el servicio en segundo plano mientras se descarga la imagen, se realiza la configuración del contenedor y se alza el servicio.
 
     `docker compose up -d`
@@ -107,8 +109,9 @@ Está estructurado bajo una arquitectura modular que separa la *configuración, 
 |--------|---------------------|------------------------------|
 | POST   | /api/register       | publico (crea con rol 'user') |
 | POST   | /api/login          | publico (devuelve JWT) |
-| GET    | /api/me             | autenticado                    |
+| GET    | /api/me             | autenticado |
 | GET    | /api/users          | solo admin |
+| POST   | /api/users          | solo admin (crea con rol a elegir) |
 | PUT    | /api/users/{id}     | admin (incl. rol) o el propio usuario |
 | DELETE | /api/users/{id}     | solo admin o el propio usuario |
 
@@ -133,6 +136,31 @@ Está estructurado bajo una arquitectura modular que separa la *configuración, 
 ---
 
 ## Frontend
+
+El desarrollo de la interfaz de usuario se realizó con **Vue.js**, un framework progresivo de JavaScript de código abierto que permite la construcción de interfaces de usuario dinámicas y aplicaciones de una sola página (SPA). Incluye herramientas de construcción de componentes, un modelo reactivo automático que optimiza la renderización de datos dentro de la aplicación, además de un sistema modular para incluir herramientas de navegación, gestión de estado, autenticación, etc.
+
+Esta estructurado bajo una arquitectura modular para separar la lógica de presentación, el enrutamiento y la comunicación con la API, donde *cada funcionalidad agrupa sus propios componentes*:
+
+* `package.json`: gestiona las dependencias, versiones y scripts de ejecución.
+* `node_modules/`: guarda las dependencias instaladas y módulos de terceros.
+* `src/`: directorio principal que aloja todas las funcionalidades del sistema. Incluye todo el código fuente.
+    * `api.js`: define al cliente HTTP, gestiona la comunicación centralizada y el envío de peticiones hacia la API REST en Flask.
+    * `router.js`: realiza la configuración de las rutas dentro de la aplicación del cliente.
+    * `auth.js`: guarda la configuración de permisos de la aplicación, mantiene la gestión del estado de autenticación, la persistencia del token JWT y las guardas de navegación para proteger las rutas privadas.
+    * `Views/`: guarda los componentes de la aplicación que representan las pantallas completas del sistema.
+
+### Pruebas de funcionamiento y verificación
+
+1.  Para levantar el frontend desde Docker se utiliza el comando:
+
+    `docker compose up -d --build frontend`
+
+2. Para inspeccionar la salida del servidor de desarrollo se utiliza el comando:
+
+    `docker compose logs -f frontend`
+
+![Salida esperada de la verificación del frontend](./images/salidaFrontend.png)
+<center><small>Salida esperada de la verificación del frontend.</small></center>
 
 
 ---

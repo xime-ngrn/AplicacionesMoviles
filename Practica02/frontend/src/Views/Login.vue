@@ -20,7 +20,6 @@ async function iniciarSesion() {
             password: password.value
         })
         auth.setSession(data.access_token, data.user)
-        console.log('respuesta del login: ', data)
         router.push(auth.isAdmin ? '/usuarios' : '/perfil')
     } catch (e) {
         error.value = e.response?.data?.message || 'Error al iniciar sesión'
