@@ -194,7 +194,7 @@ const badge = (role) =>
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium text-slate-700">
-              Contrasena
+              Contraseña
               <span class="text-slate-400">{{ modo === 'editar' ? '(opcional)' : '' }}</span>
             </label>
             <input v-model="form.password" type="password"

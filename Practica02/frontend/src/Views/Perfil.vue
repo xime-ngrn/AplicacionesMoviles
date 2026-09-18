@@ -80,7 +80,7 @@ async function guardar() {
             class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
         </div>
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">Nueva contrasena
+          <label class="mb-1 block text-sm font-medium text-slate-700">Nueva contraseña
             <span class="text-slate-400">(opcional)</span>
           </label>
           <input v-model="password" type="password" placeholder="Dejar en blanco para no cambiarla"
