@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitClient {
     // 10.0.0.2 si se ejecuta en el emulador de la computadora, que corre docker
     // IPv4 del Adaptador de LAN inalámbrica Wi-Fi de la computadora si se ejecuta en un dispositivo externo como emulador
-    private const val BASE_URL = "http://10.0.0.9:5000/"
+    private const val BASE_URL = "http://10.0.2.2:5000/"
 
     private val logger = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

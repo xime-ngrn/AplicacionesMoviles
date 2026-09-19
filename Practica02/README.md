@@ -1,4 +1,12 @@
 # Práctica 02
+
+#### Moreno Noguerón Ximena
+#### 2024630201
+#### 7CV4 - Aplicaciones Móviles Nativas
+#### Profesor Gabriel Hurtado Avilés
+#### Fecha de entrega 18 de Sept. 2026
+
+---
 ### Aplicación Móvil Básica para Operaciones CRUD con un Servicio REST
 
 > Sistema de registro / inicio de sesion con CRUD de usuarios y control por rol (admin / user). Tres servicios en Docker orquestados por un solo `docker-compose.yml` (MySQL + Flask + Vue), mas una app Android que se conecta al backend.
@@ -49,6 +57,63 @@ graph TD
 
 ---
 
+## Acciones y permisos por rol
+
+La siguiente tabla resume las acciones disponibles en el sistema y qué tipo de usuario puede realizar cada una. Se distinguen tres niveles: **visitante** (sin sesión iniciada), **usuario** (rol `user`) y **administrador** (rol `admin`).
+
+| Acción | Visitante | Usuario | Administrador |
+|--------|:---------:|:-------:|:-------------:|
+| Registrarse (crear cuenta propia) | ✅ | ✅ | ✅ |
+| Iniciar sesión | ✅ | ✅ | ✅ |
+| Consultar su propio perfil | ❌ | ✅ | ✅ |
+| Editar sus propios datos | ❌ | ✅ | ✅ |
+| Eliminar su propia cuenta | ❌ | ✅ | ✅ |
+| Ver la lista de todos los usuarios | ❌ | ❌ | ✅ |
+| Crear usuarios (con rol a elegir) | ❌ | ❌ | ✅ |
+| Editar datos de cualquier usuario | ❌ | ❌ | ✅ |
+| Cambiar el rol de cualquier usuario | ❌ | ❌ | ✅ |
+| Eliminar cualquier usuario | ❌ | ❌ | ✅ |
+| Cerrar sesión | ❌ | ✅ | ✅ |
+
+> **Nota:** aunque un usuario con rol `user` puede editar sus propios datos, el backend ignora cualquier intento de modificar su propio campo `role`; únicamente un administrador puede asignar o cambiar roles.
+
+---
+
+## Ejecución del proyecto
+
+### 1. Levantar el sistema con Docker
+Con **Docker Desktop abierto**, desde la carpeta raíz `Practica02/`, un solo comando construye y levanta los 3 servicios (base de datos, backend y frontend):
+
+    docker compose up -d --build
+
+Esto descarga las imágenes, levanta el backend y el frontend, crea la base de datos *logindb*, genera la tabla *users* y genera un usuario administrador por defecto.
+
+### 2. Verificación del servicio de Docker
+
+    docker compose ps
+
+Deben aparecer `login_mysql`, `login_backend` y `login_frontend` en estado *Up*.
+
+### 3. Abrir la aplicación web
+Con los contenedores corriendo, abrir en el navegador:
+    
+    http://localhost:5173
+
+Iniciar sesión con `admin` / `admin123`.
+
+### 4. Abrir la aplicación móvil
+1. Abrir la carpeta `/android` como proyecto en *Android Studio* y esperar a que se sincronice Gradle.
+2. Configurar la dirección del backend en los archivos `RetrofitClient.kt` y en `network_security_config.xml` según dónde se ejecute la app:
+    - **Emulador:** `http://10.0.2.2:5000/`, dirección por defecto de Docker.
+    - **Celular físico:** `http://<IP-LOCAL>:5000/`. Puedes obtener la IP de tu computadora ejecutando `ipconfig` dentro del **Símbolo del sistema**, tomando la dirección IPv4 del Adaptador de LAN inalámbrica Wi-Fi. Para que funcione el celular y la PC deben estar en la **misma red**.
+3. Conectar el dispositivo o iniciar un emulador y ejecutar la aplicación con el botón **Run** (▶).
+4. Iniciar sesión con las mismas credenciales `admin` / `admin123`.
+
+
+> *Nota:* También es posible entrar a la aplicación web utilizando la dirección web `http://<IP-LOCAL>:5173/`
+
+---
+
 ## Docker
 
 Es una plataforma de código abierto que permite crear, desplegar y ejecutar aplicaciones de manera rápida y consistente mediante el uso de **contenedores**, los cuales empaquetan el código fuente junto con todas sus dependencias, bibliotecas y configuraciones para garantizar que el software funcione de la misma forma en cualquier entorno informático.
@@ -87,7 +152,7 @@ Se crea un archivo `.env`, donde se almacenan las variables de entorno para guar
 
     `docker compose down`
 
-![Salida esperada de la verificación de la base de datos](./images/salidaBackend.png)
+![Salida esperada de la verificación de la base de datos](./images/salidaBD.png)
 <center><small>Salida esperada de la verificación de la base de datos.</small></center>
 
 
@@ -167,6 +232,78 @@ Esta estructurado bajo una arquitectura modular para separar la lógica de prese
 
 ## Android
 
+La aplicación móvil nativa se desarrolló con **Kotlin y Jetpack Compose**, el kit de herramientas moderno y declarativo de Android para construir interfaces de usuario. A diferencia del enfoque tradicional basado en XML, Compose permite describir la interfaz mediante funciones (`@Composable`) que se redibujan automáticamente cuando cambia el estado, siguiendo el mismo paradigma reactivo del frontend en Vue. La aplicación es un **cliente** que consume el mismo servicio REST dockerizado, comunicándose con el backend mediante la librería **Retrofit**, que gestiona las peticiones HTTP y traduce automáticamente entre las clases de Kotlin y el formato JSON.
+
+Está estructurada por capas que separan la *comunicación con la API, la gestión de la sesión y las pantallas*:
+
+* `Models.kt`: define las clases de datos (`data class`) que reflejan la estructura del JSON que envía y recibe el backend (usuarios, cuerpos de petición y respuestas). La librería Gson las completa automáticamente durante la comunicación.
+* `ApiService.kt`: declara la interfaz con todos los endpoints del backend mediante anotaciones (`@POST`, `@GET`, `@PUT`, `@DELETE`). Las rutas protegidas reciben el token JWT a través de la cabecera `Authorization`.
+* `RetrofitClient.kt`: construye la instancia de Retrofit apuntando a la dirección del backend y registra un interceptor de logs para depurar las peticiones. Incluye el objeto `Sesion`, que mantiene en memoria el token y el usuario autenticado, y expone si la sesión está activa y si el usuario es administrador.
+* `MainActivity.kt`: punto de entrada de la aplicación; establece el tema y muestra el componente principal `MainApp`.
+* `MainApp.kt`: contiene la barra superior con el **menú desplegable de navegación**, que muestra distintas opciones según el estado de la sesión y el rol del usuario (Inicio de sesión y Registro para visitantes; Perfil, Usuarios y Salir para usuarios autenticados). Gestiona la navegación entre pantallas mediante una variable de estado.
+* `LoginScreen.kt` y `RegistroScreen.kt`: pantallas públicas de autenticación y alta de usuarios.
+* `PerfilScreen.kt`: muestra y permite editar los datos del usuario autenticado.
+* `UsuariosScreen.kt` y `UsuarioDialog.kt`: pantalla de administración con el CRUD completo de usuarios (listar, crear, editar y eliminar) y el diálogo reutilizable para crear o editar, con selector de rol. Solo accesible para administradores.
+
+La gestión del estado se realiza con `remember { mutableStateOf(...) }`, la carga inicial de datos con `LaunchedEffect`, y las llamadas de red se ejecutan de forma asíncrona mediante **corrutinas**. 
+
+### Configuración de red
+
+Al ser un cliente que se conecta por HTTP a un servidor en desarrollo, la aplicación requiere dos ajustes:
+
+* En `AndroidManifest.xml` se declara el permiso de Internet (`android.permission.INTERNET`).
+* En `res/xml/network_security_config.xml` se autoriza el tráfico sin cifrar (*cleartext*) hacia la dirección del backend, ya que Android lo bloquea por defecto.
+
+La dirección del backend se configura en la constante `BASE_URL` de `RetrofitClient.kt` según el entorno de ejecución:
+
+| Entorno | Dirección |
+|---------|-----------|
+| Emulador de Android Studio | `http://10.0.2.2:5000/` |
+| Dispositivo físico | `http://<IP-LOCAL-DE-LA-PC>:5000/` (misma red Wi-Fi) |
+
+### Pruebas de funcionamiento y verificación
+
+1. Con los contenedores de Docker en ejecución (`docker compose up -d`), abrir la carpeta `android/` como proyecto en **Android Studio** y esperar a que sincronice Gradle.
+
+2. Configurar la constante `BASE_URL` en `RetrofitClient.kt` con la dirección correspondiente al entorno (emulador o dispositivo físico), y verificar que dicha dirección esté incluida en `network_security_config.xml`.
+
+3. Conectar un dispositivo o iniciar un emulador y ejecutar la aplicación con el botón **Run**.
+
+4. Iniciar sesión con las credenciales del administrador (`admin` / `admin123`). Un administrador accede a la gestión de usuarios; un usuario normal accede a su perfil.
+
+![Salida esperada de la ejecución de la aplicación móvil](./images/salidaAndroid.png)
+<center><small>Salida esperada de la ejecución de la App Android.</small></center>
+
 
 ---
+
+## Comparación App Web vs App Móvil
+
+| Vista | Web | Móvil |
+| ----- | --- | ----- |
+| Inicio de Sesión | ![Login web](./images/vistaLoginWeb.jpg) | ![Login móvil](./images/vistaLoginMovil.jpg) |
+| Registro | ![Registro web](./images/vistaRegistroWeb.jpg) | ![Registro móvil](./images/vistaRegistroMovil.jpg) |
+| Usuarios | ![Usuarios web](./images/vistaUsuariosWeb.jpg) | ![Usuarios móvil](./images/vistaUsuariosMovil.jpg) |
+| Perfil | ![Perfil web](./images/vistaPerfilWeb.jpg) | ![Perfil móvil](./images/vistaPerfilMovil.jpg) |
+
+---
+
+## Conclusiones
+
+El desarrollo de esta práctica fue muy desafiante al incluir tecnologías nuevas: la creación de contenedores con Docker y el desarrollo con Jetpack Compose de una aplicación móvil nativa en Android. 
+
+El primero es una herramienta sumamente útil que en un inicio es difícil de comprender y ejecutar, pues la forma en la que cada contenedor vive y se comunica con los demás orquestado por un archivo `.yml` es una abstracción que en un inicio no se observa.
+
+La segunda, al tener varias opciones de desarrollo y un nuevo lenguaje para la creación de las aplicaciones, es una curva de aprendizaje nuevo al tener un modelo de desarrollo diferente a otros en el mercado. Sin embargo, la similitud de desarrollo con *Vue.js* ayudó mucho en el entendimiento de los Composables, cómo se estructura, cómo varía según el estado y cómo maneja sus variables y declaraciones.
+
+A su vez, creo que la conexión a Internet desde Android es complicada de implementar debido a que se necesitan permisos especiales dentro de la aplicación para poder realizar la comunicación con el backend dentro de Docker, sin embargo el entendimiento y la implementación fue una experiencia llena de aprendizaje para la mejora de próximas prácticas y desarrollo.
+
+---
+
+## Bibliografía
+1. Aprende Jetpack Compose. (s/f). OpenCompose. Recuperado el 19 de septiembre de 2026, de https://www.jetpackcompose.pro/home/guide/
+2. Conexión a Internet en Android Studio con Retrofit | Jetpack Compose. (2026, febrero 3). [Video recording]. https://programacionymas.com/blog/consumir-una-api-usando-retrofit 
+3. EDteam [@EDteam]. (s/f). ¿Qué es Docker y Kubernetes? [[Object Object]]. Youtube. Recuperado el 19 de septiembre de 2026, de https://www.youtube.com/watch?v=gjRoNFopFig
+4. ¿Qué es Docker y cómo funciona? Ventajas de los contenedores Docker. (s/f). Redhat.com. Recuperado el 19 de septiembre de 2026, de https://www.redhat.com/es/topics/containers/what-is-docker
+5. programacionymas.com. Programacionymas.com. Retrieved September 19, 2026, from https://programacionymas.com/blog/consumir-una-api-usando-retrofit
 
