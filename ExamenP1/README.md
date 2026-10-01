@@ -18,7 +18,7 @@
 - [Pull Request de los cambios](https://github.com/gabrielhuav/PolitecnicoOpenWorld/pull/160)
 - [Documentación del Examen](https://github.com/xime-ngrn/AplicacionesMoviles/blob/main/ExamenP1/README.md)
 - [Revisión de un compañero del Pull Request]()
-- [Revisión de mi parte del Pull Request de un compañero]()
+- [Revisión de mi parte del Pull Request de un compañero](https://github.com/gabrielhuav/PolitecnicoOpenWorld/pull/165#issuecomment-5938230691)
 - [Documento de desarrollo del cambio realizado](/ExamenP1/docs/DESARROLLO.md)
 - [Documento de pruebas del cambio realizado](/ExamenP1/docs/PRUEBAS.md)
 
@@ -28,7 +28,7 @@
 
 ### Moreno Noguerón Ximena · 2024630201
 
-**Registro de actividades y commits** (hora del centro de México)
+**Registro de actividades y commits**
 
 | Fecha | Actividad | Evidencia |
 |---|---|---|
@@ -38,6 +38,7 @@
 | 30/09/2026 15:26 | Pruebas unitarias `SfSystemBackTest` (4/4 aprobadas) | [Desarrollo](docs/DESARROLLO.md) |
 | 30/09/2026 17:55 | Commit de la base de la documentación del examen | [`bf871f1`](https://github.com/xime-ngrn/AplicacionesMoviles/commit/bf871f16e33720cae616418bfb7bad4cee3d1b56) |
 | 30/09/2026 18:48 | Pull Request al repositorio original | [PR #160](https://github.com/gabrielhuav/PolitecnicoOpenWorld/pull/160) |
+| 01/10/2026 12:46 | Revisión QA del PR #165 de un compañero | [Comentario en PR #165](https://github.com/gabrielhuav/PolitecnicoOpenWorld/pull/165#issuecomment-5938230691) |
 
 **Casos ejecutados**
 
@@ -55,4 +56,4 @@
 | Revisión | Enlace |
 |---|---|
 | Revisión recibida en mi PR (#160) | ⟨pendiente⟩ |
-| Revisión hecha al PR de un compañero | ⟨pendiente⟩ |
+| Revisión hecha al PR #165 de @AbelHunt3r (búsqueda de estaciones sin acentos): 6 casos reproducidos en Samsung A15 sobre el SHA `1b92fed`; recomendación: lista para integrar | [Comentario en PR #165](https://github.com/gabrielhuav/PolitecnicoOpenWorld/pull/165#issuecomment-5938230691) |
