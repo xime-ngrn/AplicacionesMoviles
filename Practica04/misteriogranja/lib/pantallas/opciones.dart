@@ -28,13 +28,13 @@ class PantallaOpciones extends StatelessWidget {
     final variante = Theme.of(context).colorScheme.onSurfaceVariant;
 
     Widget titulo(String t) => Padding(
-          padding: const EdgeInsets.only(top: 24, bottom: 8),
-          child: Text(t, style: texto.titleMedium),
-        );
+      padding: const EdgeInsets.only(top: 24, bottom: 8),
+      child: Text(t, style: texto.titleMedium),
+    );
     Widget nota(String t) => Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Text(t, style: texto.bodySmall?.copyWith(color: variante)),
-        );
+      padding: const EdgeInsets.only(top: 8),
+      child: Text(t, style: texto.bodySmall?.copyWith(color: variante)),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Opciones')),

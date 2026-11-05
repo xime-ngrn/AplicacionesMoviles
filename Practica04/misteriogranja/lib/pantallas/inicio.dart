@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../app/efectos.dart';
 import '../app/opciones.dart';
+import '../juego/motor.dart';
 import '../widgets/fondo_granja.dart';
+import 'juego.dart';
 import 'opciones.dart';
 
 /// Portada del juego con el menú principal sobre el fondo animado de la granja.
@@ -17,6 +19,17 @@ class PantallaInicio extends StatelessWidget {
     efectos.reproducir(Sonido.clic);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Esta parte se programa en el paso $paso.')));
+  }
+
+  void _nuevaPartida(BuildContext context) {
+    efectos.reproducir(Sonido.clic);
+    final motor = MotorJuego.nueva(
+      dificultad: opciones.dificultad,
+      granjero: opciones.nombreGranjero,
+    );
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => PantallaJuego(motor: motor, efectos: efectos),
+    ));
   }
 
   void _abrirOpciones(BuildContext context) {
@@ -87,7 +100,7 @@ class PantallaInicio extends StatelessWidget {
         ),
         const SizedBox(height: 28),
         FilledButton.icon(
-          onPressed: () => _pendiente(context, 'J3'),
+          onPressed: () => _nuevaPartida(context),
           icon: const Icon(Icons.search),
           label: const Text('Nueva partida'),
         ),

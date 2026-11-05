@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 enum TemaApp {
   guinda('Guinda IPN', Color(0xFF6C1D45)),
-  azul('Azul IPN', Color(0xFF005A9C));
+  azul('Azul ESCOM', Color(0xFF005A9C));
 
   const TemaApp(this.etiqueta, this.semilla);
   final String etiqueta;
