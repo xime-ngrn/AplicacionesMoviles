@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app/efectos.dart';
+import '../juego/archivos/repositorio.dart';
 import '../juego/datos_historia.dart';
 import '../juego/motor.dart';
 import '../widgets/dialogos.dart';
@@ -14,10 +15,16 @@ import 'tablero.dart';
 /// Es la dueña del motor: arranca el reloj, lo pausa si la app se va al fondo
 /// y convierte cada Resultado del motor en un sonido y un mensaje.
 class PantallaJuego extends StatefulWidget {
-  const PantallaJuego({super.key, required this.motor, required this.efectos});
+  const PantallaJuego({
+    super.key,
+    required this.motor,
+    required this.efectos,
+    required this.repositorio,
+  });
 
   final MotorJuego motor;
   final Efectos efectos;
+  final RepositorioPartidas repositorio;
 
   @override
   State<PantallaJuego> createState() => _PantallaJuegoState();
@@ -25,6 +32,7 @@ class PantallaJuego extends StatefulWidget {
 
 class _PantallaJuegoState extends State<PantallaJuego> {
   late final AppLifecycleListener _ciclo;
+  late final AutoGuardado _guardado;
   int _pestana = 0;
 
   MotorJuego get motor => widget.motor;
@@ -33,8 +41,16 @@ class _PantallaJuegoState extends State<PantallaJuego> {
   void initState() {
     super.initState();
     motor.iniciarReloj();
-    // Si la app pasa a segundo plano, el reloj se pausa; al volver, sigue.
-    _ciclo = AppLifecycleListener(onResume: motor.iniciarReloj, onPause: motor.detenerReloj);
+    // Guardado automático en el formato elegido en Opciones.
+    _guardado = AutoGuardado(motor, widget.repositorio);
+    // Si la app pasa a segundo plano, el reloj se pausa y la partida se guarda.
+    _ciclo = AppLifecycleListener(
+      onResume: motor.iniciarReloj,
+      onPause: () {
+        motor.detenerReloj();
+        _guardado.guardarYa();
+      },
+    );
     // Partida recién creada (solo tiene la introducción): muestra el capítulo 1.
     if (motor.partida.historial.length == 1) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _capitulo(1));
@@ -43,6 +59,7 @@ class _PantallaJuegoState extends State<PantallaJuego> {
 
   @override
   void dispose() {
+    _guardado.cerrar();
     _ciclo.dispose();
     motor.dispose();
     super.dispose();
@@ -83,7 +100,11 @@ class _PantallaJuegoState extends State<PantallaJuego> {
   void _irAlFinal() {
     Navigator.of(context).pushReplacement(PageRouteBuilder<void>(
       transitionDuration: const Duration(milliseconds: 800),
-      pageBuilder: (_, _, _) => PantallaFinal(motor: motor, efectos: widget.efectos),
+      pageBuilder: (_, _, _) => PantallaFinal(
+        motor: motor,
+        efectos: widget.efectos,
+        repositorio: widget.repositorio,
+      ),
       transitionsBuilder: (_, animacion, _, child) =>
           FadeTransition(opacity: animacion, child: child),
     ));

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../app/efectos.dart';
+import '../juego/archivos/repositorio.dart';
 import '../juego/datos_historia.dart';
 import '../juego/modelo.dart';
 import '../juego/motor.dart';
@@ -14,10 +15,16 @@ import 'juego.dart';
 /// Pantalla final: amanece en la granja, se revela al culpable (de silueta a color),
 /// se cuenta el desenlace y se muestran la puntuación, el rango y las estadísticas.
 class PantallaFinal extends StatefulWidget {
-  const PantallaFinal({super.key, required this.motor, required this.efectos});
+  const PantallaFinal({
+    super.key,
+    required this.motor,
+    required this.efectos,
+    required this.repositorio,
+  });
 
   final MotorJuego motor;
   final Efectos efectos;
+  final RepositorioPartidas repositorio;
 
   @override
   State<PantallaFinal> createState() => _PantallaFinalState();
@@ -57,6 +64,7 @@ class _PantallaFinalState extends State<PantallaFinal> {
       builder: (_) => PantallaJuego(
         motor: MotorJuego.nueva(dificultad: p.dificultad, granjero: p.nombreGranjero),
         efectos: widget.efectos,
+        repositorio: widget.repositorio,
       ),
     ));
   }

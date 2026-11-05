@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app/efectos.dart';
 import '../app/opciones.dart';
+import '../juego/archivos/repositorio.dart';
 import '../juego/motor.dart';
 import '../widgets/fondo_granja.dart';
 import 'juego.dart';
@@ -10,10 +11,16 @@ import 'opciones.dart';
 /// Portada del juego con el menú principal sobre el fondo animado de la granja.
 /// Los botones "Nueva partida", "Continuar" y "Partidas" se conectan en los pasos J3 a J5.
 class PantallaInicio extends StatelessWidget {
-  const PantallaInicio({super.key, required this.opciones, required this.efectos});
+  const PantallaInicio({
+    super.key,
+    required this.opciones,
+    required this.efectos,
+    required this.repositorio,
+  });
 
   final Opciones opciones;
   final Efectos efectos;
+  final RepositorioPartidas repositorio;
 
   void _pendiente(BuildContext context, String paso) {
     efectos.reproducir(Sonido.clic);
@@ -28,7 +35,27 @@ class PantallaInicio extends StatelessWidget {
       granjero: opciones.nombreGranjero,
     );
     Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => PantallaJuego(motor: motor, efectos: efectos),
+      builder: (_) => PantallaJuego(motor: motor, efectos: efectos, repositorio: repositorio),
+    ));
+  }
+
+  /// Abre la partida sin terminar más reciente que esté guardada.
+  Future<void> _continuar(BuildContext context) async {
+    efectos.reproducir(Sonido.clic);
+    final partida = await repositorio.ultimaSinTerminar();
+    if (!context.mounted) return;
+    if (partida == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No hay partidas en curso. Empieza una nueva.')),
+      );
+      return;
+    }
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => PantallaJuego(
+        motor: MotorJuego(partida),
+        efectos: efectos,
+        repositorio: repositorio,
+      ),
     ));
   }
 
@@ -106,7 +133,7 @@ class PantallaInicio extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         FilledButton.tonalIcon(
-          onPressed: () => _pendiente(context, 'J4'),
+          onPressed: () => _continuar(context),
           icon: const Icon(Icons.play_arrow),
           label: const Text('Continuar partida'),
         ),
