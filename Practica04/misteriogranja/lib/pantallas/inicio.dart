@@ -7,9 +7,9 @@ import '../juego/motor.dart';
 import '../widgets/fondo_granja.dart';
 import 'juego.dart';
 import 'opciones.dart';
+import 'partidas.dart';
 
 /// Portada del juego con el menú principal sobre el fondo animado de la granja.
-/// Los botones "Nueva partida", "Continuar" y "Partidas" se conectan en los pasos J3 a J5.
 class PantallaInicio extends StatelessWidget {
   const PantallaInicio({
     super.key,
@@ -21,12 +21,6 @@ class PantallaInicio extends StatelessWidget {
   final Opciones opciones;
   final Efectos efectos;
   final RepositorioPartidas repositorio;
-
-  void _pendiente(BuildContext context, String paso) {
-    efectos.reproducir(Sonido.clic);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Esta parte se programa en el paso $paso.')));
-  }
 
   void _nuevaPartida(BuildContext context) {
     efectos.reproducir(Sonido.clic);
@@ -56,6 +50,13 @@ class PantallaInicio extends StatelessWidget {
         efectos: efectos,
         repositorio: repositorio,
       ),
+    ));
+  }
+
+  void _abrirPartidas(BuildContext context) {
+    efectos.reproducir(Sonido.clic);
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => PantallaPartidas(efectos: efectos, repositorio: repositorio),
     ));
   }
 
@@ -139,7 +140,7 @@ class PantallaInicio extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         FilledButton.tonalIcon(
-          onPressed: () => _pendiente(context, 'J5'),
+          onPressed: () => _abrirPartidas(context),
           icon: const Icon(Icons.folder_open),
           label: const Text('Partidas guardadas'),
         ),
