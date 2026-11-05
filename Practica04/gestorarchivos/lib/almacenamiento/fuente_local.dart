@@ -12,20 +12,27 @@ import 'errores.dart';
 import 'fuente_archivos.dart';
 
 class FuenteLocal implements FuenteArchivos {
-  FuenteLocal._(this._carpetaRaiz);
+  FuenteLocal._(this._carpetaRaiz)
+      : id = 'local',
+        nombre = 'Almacenamiento local';
+
+  /// Carpeta elegida por el usuario en iOS con el selector de Archivos. Se lee con
+  /// dart:io igual que el espacio propio, porque iOS ya concedió el acceso a esa ruta.
+  FuenteLocal.carpetaAutorizada(String ruta, {required this.id, required this.nombre})
+      : _carpetaRaiz = Directory(ruta);
 
   final Directory _carpetaRaiz;
+
+  @override
+  final String id;
+
+  @override
+  final String nombre;
 
   static Future<FuenteLocal> espacioPropio() async {
     final docs = await getApplicationDocumentsDirectory();
     return FuenteLocal._(docs);
   }
-
-  @override
-  String get id => 'local';
-
-  @override
-  String get nombre => 'Almacenamiento local';
 
   @override
   EntradaArchivo get raiz => EntradaArchivo(
